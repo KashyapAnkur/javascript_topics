@@ -1,30 +1,113 @@
-<html>
-    <body>
-        <input type="text" id="text" placeholder="Enter something..."><br />
-        <label id="label"></label>
-    </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            color: white;
+            background-color: purple;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        #btn {
+            width: 100%;
+            height: 60px;
+            font-size: 23px;
+            background-image: radial-gradient(orange, white, red);
+        }
+        #clickcount {
+            color: white;
+            font-size: 23px;
+        }
+        #apihit {
+            color: white;
+            font-size: 23px;
+        }
+        #table {
+            display: none;
+            /* width: 100vh; */
+            background-color: grey;
+            text-align: center;
+            font-size: 23px;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <a href="/contents/index.html">Debounce in JavaScript</a>
+    <button type="button" id="btn" placeholder="Enter to hit API">Hit API(Debounce)</button><br /><br />
+    <label id="clickcount"></label><br /><br />
+    <label id="apihit"></label><br /><br />
+    <table id="table" border="2">
+
+    </table>
+</body>
 </html>
 
 <script>
-    const txt = document.getElementById("text");
-    let label = document.getElementById("label");
 
-    function debounce(fun,delay) {
-        let time;
-        console.log("Called"); // initially it is run and not on every keyup or any other event
-        return function(args) {
-            if(time) {
-                clearTimeout(time);
+    let count = 0;
+    const btn = document.getElementById("btn");
+    const clickcount = document.getElementById("clickcount");
+    const table = document.getElementById("table");
+    const apihit = document.getElementById("apihit");
+
+    function debounce(calbak) {
+        console.log("Initial calling debounce function.")
+        let t;
+        return function() {
+            apihit.innerHTML = "";
+            count += 1;
+            clickcount.innerHTML = "Clicked " + count + " times.";
+            if(t) {
+                clearTimeout(t);
             }
-            time = setTimeout(() => {
-                fun(args);
-            },delay);
+            t = setTimeout(() => {
+                calbak();
+            }, 1200);
         }
     }
 
-    function callback(e) {
-        label.innerHTML = e.target.value;
+    function callback() {
+        count = 0;
+        clickcount.innerHTML = "Clicked " + count + " times.";
+        apihit.innerHTML = "API is hit after 1.2 seconds.<br /> Check your network tab.";
+        fetch("https://random-data-api.com/api/stripe/random_stripe")
+            .then(response => response.json())
+            .then((res) => {
+                let heading = `<tr>
+                        <td>ID</td>
+                        <td>CCV</td>
+                        <td>CCV Amex</td>
+                        <td>Invalid Card</td>
+                        <td>Month</td>
+                        <td>Year</td>
+                        <td>UID</td>
+                        <td>Token</td>
+                        <td>Valid Card</td>
+                    </tr>`;
+                let ht = `${heading}
+                    <tr>
+                        <td>${res.id}</td>
+                        <td>${res.ccv}</td>
+                        <td>${res.ccv_amex}</td>
+                        <td>${res.invalid_card}</td>
+                        <td>${res.month}</td>
+                        <td>${res.year}</td>
+                        <td>${res.uid}</td>
+                        <td>${res.token}</td>
+                        <td>${res.valid_card}</td>
+                    </tr>`;
+                    table.style.display = "block";
+                    table.innerHTML = ht;
+            })
     }
-    
-    txt.addEventListener("keyup", debounce(callback,700));
-</script>
+
+    btn.addEventListener("click", debounce(callback));
+
+</script> 
