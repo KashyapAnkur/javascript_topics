@@ -1,0 +1,30 @@
+<html>
+    <body>
+        <input type="text" id="text" placeholder="Enter something..."><br />
+        <label id="label"></label>
+    </body>
+</html>
+
+<script>
+    const txt = document.getElementById("text");
+    let label = document.getElementById("label");
+
+    function debounce(fun,delay) {
+        let time;
+        console.log("Called"); // initially it is run and not on every keyup or any other event
+        return function(args) {
+            if(time) {
+                clearTimeout(time);
+            }
+            time = setTimeout(() => {
+                fun(args);
+            },delay);
+        }
+    }
+
+    function callback(e) {
+        label.innerHTML = e.target.value;
+    }
+    
+    txt.addEventListener("keyup", debounce(callback,700));
+</script>
